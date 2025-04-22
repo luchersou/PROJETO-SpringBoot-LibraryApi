@@ -3,14 +3,15 @@ package io.project.libraryapi.controller;
 import io.project.libraryapi.controller.dto.AuthorDTO;
 import io.project.libraryapi.model.Author;
 import io.project.libraryapi.service.AuthorService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("authors")
@@ -53,4 +54,31 @@ public class AuthorController {
         return ResponseEntity.notFound().build();
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id){
+        var idAuthor = UUID.fromString(id);
+        Optional<Author> authorOptional = service.findById(idAuthor);
+
+        if(authorOptional.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        service.delete(authorOptional.get());
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<AuthorDTO>> search(@RequestParam(value = "name", required = false) String name,
+                                                  @RequestParam(value = "nationality", required = false) String nationality){
+        List<Author> result = service.search(name, nationality);
+        List<AuthorDTO> list = result
+                .stream()
+                .map(author -> new AuthorDTO(
+                        author.getId(),
+                        author.getName(),
+                        author.getBirthDate(),
+                        author.getNationality())
+                ).collect(Collectors.toList());
+        return ResponseEntity.ok(list);
+    }
 }
