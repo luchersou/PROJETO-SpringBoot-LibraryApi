@@ -1,5 +1,6 @@
 package io.project.libraryapi.service;
 
+import io.project.libraryapi.controller.validator.AuthorValidator;
 import io.project.libraryapi.model.Author;
 import io.project.libraryapi.repository.AuthorRepository;
 import org.springframework.stereotype.Service;
@@ -12,19 +13,23 @@ import java.util.UUID;
 public class AuthorService {
 
     private final AuthorRepository repository;
+    private final AuthorValidator validator;
 
-    public AuthorService(AuthorRepository repository) {
+    public AuthorService(AuthorRepository repository, AuthorValidator validator) {
         this.repository = repository;
+        this.validator = validator;
     }
 
     public Author save(Author author){
-        if(author.getId() == null){
-            throw new IllegalArgumentException("It's necessary that the author already be saved in the database");
-        }
+        validator.validate(author);
         return repository.save(author);
     }
 
     public void update(Author author){
+        if(author.getId() == null){
+            throw new IllegalArgumentException("It's necessary that the author already be saved in the database");
+        }
+        validator.validate(author);
         repository.save(author);
     }
 

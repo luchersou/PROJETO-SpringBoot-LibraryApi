@@ -1,6 +1,8 @@
 package io.project.libraryapi.controller;
 
 import io.project.libraryapi.controller.dto.AuthorDTO;
+import io.project.libraryapi.controller.dto.ResponseError;
+import io.project.libraryapi.exceptions.DuplicateRecordException;
 import io.project.libraryapi.model.Author;
 import io.project.libraryapi.service.AuthorService;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,8 @@ public class AuthorController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody AuthorDTO author) {
+    public ResponseEntity<Object> save(@RequestBody AuthorDTO author) {
+        try{
         Author authorEntity = author.mappingToAuthor();
         service.save(authorEntity);
 
@@ -37,6 +40,10 @@ public class AuthorController {
                 .toUri();
 
         return ResponseEntity.created(location).build();
+        } catch (DuplicateRecordException e){
+            var errorDTO = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(errorDTO.status()).body(errorDTO);
+        }
     }
 
     @GetMapping("{id}")
@@ -83,22 +90,28 @@ public class AuthorController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> Update(@PathVariable String id,
+    public ResponseEntity<Object> Update(@PathVariable String id,
                                        @RequestBody AuthorDTO dto) {
-        var idAuthor = UUID.fromString(id);
-        Optional<Author> authorOptional = service.findById(idAuthor);
 
-        if (authorOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            var idAuthor = UUID.fromString(id);
+            Optional<Author> authorOptional = service.findById(idAuthor);
+
+            if (authorOptional.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            var author = authorOptional.get();
+            author.setName(dto.name());
+            author.setBirthDate(dto.birthDate());
+            author.setNationality(dto.nationality());
+
+            service.save(author);
+
+            return ResponseEntity.noContent().build();
+        } catch (DuplicateRecordException e){
+            var errorDTO = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(errorDTO.status()).body(errorDTO);
         }
-
-        var author = authorOptional.get();
-        author.setName(dto.name());
-        author.setBirthDate(dto.birthDate());
-        author.setNationality(dto.nationality());
-
-        service.save(author);
-
-        return ResponseEntity.noContent().build();
     }
 }
