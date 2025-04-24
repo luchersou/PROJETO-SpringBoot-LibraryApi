@@ -1,8 +1,11 @@
 package io.project.libraryapi.service;
 
 import io.project.libraryapi.controller.validator.AuthorValidator;
+import io.project.libraryapi.exceptions.NotAllowedOperationException;
 import io.project.libraryapi.model.Author;
 import io.project.libraryapi.repository.AuthorRepository;
+import io.project.libraryapi.repository.BookRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,15 +13,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AuthorService {
 
     private final AuthorRepository repository;
     private final AuthorValidator validator;
-
-    public AuthorService(AuthorRepository repository, AuthorValidator validator) {
-        this.repository = repository;
-        this.validator = validator;
-    }
+    private final BookRepository bookRepository;
 
     public Author save(Author author){
         validator.validate(author);
@@ -38,6 +38,9 @@ public class AuthorService {
     }
 
     public void delete(Author author){
+        if(hasBook(author)){
+            throw new NotAllowedOperationException("It is not allowed to delete an author with registered books!");
+        }
         repository.delete(author);
     }
 
@@ -55,5 +58,9 @@ public class AuthorService {
         }
 
         return repository.findAll();
+    }
+
+    public boolean hasBook(Author author){
+        return bookRepository.existsByAuthor(author);
     }
 }

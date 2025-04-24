@@ -3,8 +3,11 @@ package io.project.libraryapi.controller;
 import io.project.libraryapi.controller.dto.AuthorDTO;
 import io.project.libraryapi.controller.dto.ResponseError;
 import io.project.libraryapi.exceptions.DuplicateRecordException;
+import io.project.libraryapi.exceptions.NotAllowedOperationException;
 import io.project.libraryapi.model.Author;
 import io.project.libraryapi.service.AuthorService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -17,16 +20,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("authors")
+@RequiredArgsConstructor
 public class AuthorController {
 
     private final AuthorService service;
 
-    public AuthorController(AuthorService service) {
-        this.service = service;
-    }
-
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody AuthorDTO author) {
+    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO author) {
         try{
         Author authorEntity = author.mappingToAuthor();
         service.save(authorEntity);
@@ -62,16 +62,21 @@ public class AuthorController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id){
-        var idAuthor = UUID.fromString(id);
-        Optional<Author> authorOptional = service.findById(idAuthor);
+    public ResponseEntity<Object> delete(@PathVariable String id){
+        try {
+            var idAuthor = UUID.fromString(id);
+            Optional<Author> authorOptional = service.findById(idAuthor);
 
-        if(authorOptional.isEmpty()){
-            return ResponseEntity.notFound().build();
+            if (authorOptional.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            service.delete(authorOptional.get());
+            return ResponseEntity.noContent().build();
+        } catch (NotAllowedOperationException e){
+            var responseError = ResponseError.defaultResponse(e.getMessage());
+            return ResponseEntity.status(responseError.status()).body(responseError);
         }
-
-        service.delete(authorOptional.get());
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -91,7 +96,7 @@ public class AuthorController {
 
     @PutMapping("{id}")
     public ResponseEntity<Object> Update(@PathVariable String id,
-                                       @RequestBody AuthorDTO dto) {
+                                       @RequestBody @Valid AuthorDTO dto) {
 
         try {
             var idAuthor = UUID.fromString(id);
