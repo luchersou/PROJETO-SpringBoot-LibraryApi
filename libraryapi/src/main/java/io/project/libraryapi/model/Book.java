@@ -3,15 +3,20 @@ package io.project.libraryapi.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "tb_book")
 @Getter
 @Setter
+@EntityListeners(AuditingEntityListener.class)
 public class Book {
 
     @Id
@@ -37,4 +42,15 @@ public class Book {
     @ManyToOne
     @JoinColumn(name = "id_author")
     private Author author;
+
+    @CreatedDate
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column(name = "updated_date")
+    private LocalDateTime updatedDate;
+
+    @Column(name = "user_id")
+    private UUID userId;
 }
