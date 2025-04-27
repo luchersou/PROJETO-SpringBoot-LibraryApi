@@ -2,6 +2,7 @@ package io.project.libraryapi.controller;
 
 import io.project.libraryapi.controller.dto.AuthorDTO;
 import io.project.libraryapi.controller.dto.ResponseError;
+import io.project.libraryapi.controller.mappers.AuthorMapper;
 import io.project.libraryapi.exceptions.DuplicateRecordException;
 import io.project.libraryapi.exceptions.NotAllowedOperationException;
 import io.project.libraryapi.model.Author;
@@ -24,19 +25,20 @@ import java.util.stream.Collectors;
 public class AuthorController {
 
     private final AuthorService service;
+    private final AuthorMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO author) {
+    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO dto) {
         try{
-        Author authorEntity = author.mappingToAuthor();
-        service.save(authorEntity);
+        Author author = mapper.toEntity(dto);
+        service.save(author);
 
         // Returns the 'Location' header with the URI of the newly created resource (REST best practice).
         // Clients can immediately access it via GET or use the ID for future operations (PUT/DELETE), avoiding extra database queries.
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(authorEntity.getId())
+                .buildAndExpand(author.getId())
                 .toUri();
 
         return ResponseEntity.created(location).build();
@@ -49,16 +51,13 @@ public class AuthorController {
     @GetMapping("{id}")
     public ResponseEntity<AuthorDTO> findDetails(@PathVariable String id){ // Do not need to put "@PathVariable("id")" because the string and the GetMepping have the same name
         var idAuthor = UUID.fromString(id);
-        Optional<Author> authorOptional = service.findById(idAuthor);
-        if (authorOptional.isPresent()){
-            Author author = authorOptional.get();
-            AuthorDTO dto = new AuthorDTO(author.getId(),
-                    author.getName(),
-                    author.getBirthDate(),
-                    author.getNationality());
-            return ResponseEntity.ok(dto);
-        }
-        return ResponseEntity.notFound().build();
+
+        return service.findById(idAuthor)
+                .map(author -> {
+                    AuthorDTO dto = mapper.toDTO(author);
+                    return ResponseEntity.ok(dto);
+                }).orElseGet( () -> ResponseEntity.notFound().build() );
+
     }
 
     @DeleteMapping("{id}")
@@ -85,12 +84,8 @@ public class AuthorController {
         List<Author> result = service.search(name, nationality);
         List<AuthorDTO> list = result
                 .stream()
-                .map(author -> new AuthorDTO(
-                        author.getId(),
-                        author.getName(),
-                        author.getBirthDate(),
-                        author.getNationality())
-                ).collect(Collectors.toList());
+                .map(mapper::toDTO) // It's the same as "author -> mapper.toDTO(author)"
+                .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
 

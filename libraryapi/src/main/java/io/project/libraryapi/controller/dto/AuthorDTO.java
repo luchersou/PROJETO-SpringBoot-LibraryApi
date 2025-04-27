@@ -20,11 +20,4 @@ public record AuthorDTO(UUID id,
                         @Size(min = 2, max = 50, message = "field outside standard size!")
                         String nationality) {
 
-    public Author mappingToAuthor(){
-        Author author = new Author();
-        author.setName(this.name);
-        author.setBirthDate(this.birthDate);
-        author.setNationality(this.nationality);
-        return author;
-    }
 }
