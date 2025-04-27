@@ -22,65 +22,51 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("authors")
 @RequiredArgsConstructor
-public class AuthorController {
+public class AuthorController implements GenericController{
 
     private final AuthorService service;
     private final AuthorMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO dto) {
-        try{
+    public ResponseEntity<Void> save(@RequestBody @Valid AuthorDTO dto) {
+
         Author author = mapper.toEntity(dto);
         service.save(author);
-
-        // Returns the 'Location' header with the URI of the newly created resource (REST best practice).
-        // Clients can immediately access it via GET or use the ID for future operations (PUT/DELETE), avoiding extra database queries.
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(author.getId())
-                .toUri();
-
+        URI location = generateHeaderLocation(author.getId());
         return ResponseEntity.created(location).build();
-        } catch (DuplicateRecordException e){
-            var errorDTO = ResponseError.conflict(e.getMessage());
-            return ResponseEntity.status(errorDTO.status()).body(errorDTO);
-        }
+
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<AuthorDTO> findDetails(@PathVariable String id){ // Do not need to put "@PathVariable("id")" because the string and the GetMepping have the same name
+    public ResponseEntity<AuthorDTO> findDetails(@PathVariable String id) { // Do not need to put "@PathVariable("id")" because the string and the GetMepping have the same name
         var idAuthor = UUID.fromString(id);
 
         return service.findById(idAuthor)
                 .map(author -> {
                     AuthorDTO dto = mapper.toDTO(author);
                     return ResponseEntity.ok(dto);
-                }).orElseGet( () -> ResponseEntity.notFound().build() );
+                }).orElseGet(() -> ResponseEntity.notFound().build());
 
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> delete(@PathVariable String id){
-        try {
-            var idAuthor = UUID.fromString(id);
-            Optional<Author> authorOptional = service.findById(idAuthor);
+    public ResponseEntity<Void> delete(@PathVariable String id) {
 
-            if (authorOptional.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
+        var idAuthor = UUID.fromString(id);
+        Optional<Author> authorOptional = service.findById(idAuthor);
 
-            service.delete(authorOptional.get());
-            return ResponseEntity.noContent().build();
-        } catch (NotAllowedOperationException e){
-            var responseError = ResponseError.defaultResponse(e.getMessage());
-            return ResponseEntity.status(responseError.status()).body(responseError);
+        if (authorOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+
+        service.delete(authorOptional.get());
+        return ResponseEntity.noContent().build();
+
     }
 
     @GetMapping
     public ResponseEntity<List<AuthorDTO>> search(@RequestParam(value = "name", required = false) String name,
-                                                  @RequestParam(value = "nationality", required = false) String nationality){
+                                                  @RequestParam(value = "nationality", required = false) String nationality) {
         List<Author> result = service.search(name, nationality);
         List<AuthorDTO> list = result
                 .stream()
@@ -90,28 +76,24 @@ public class AuthorController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Object> Update(@PathVariable String id,
-                                       @RequestBody @Valid AuthorDTO dto) {
+    public ResponseEntity<Void> Update(@PathVariable String id,
+                                         @RequestBody @Valid AuthorDTO dto) {
 
-        try {
-            var idAuthor = UUID.fromString(id);
-            Optional<Author> authorOptional = service.findById(idAuthor);
 
-            if (authorOptional.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
+        var idAuthor = UUID.fromString(id);
+        Optional<Author> authorOptional = service.findById(idAuthor);
 
-            var author = authorOptional.get();
-            author.setName(dto.name());
-            author.setBirthDate(dto.birthDate());
-            author.setNationality(dto.nationality());
-
-            service.save(author);
-
-            return ResponseEntity.noContent().build();
-        } catch (DuplicateRecordException e){
-            var errorDTO = ResponseError.conflict(e.getMessage());
-            return ResponseEntity.status(errorDTO.status()).body(errorDTO);
+        if (authorOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+
+        var author = authorOptional.get();
+        author.setName(dto.name());
+        author.setBirthDate(dto.birthDate());
+        author.setNationality(dto.nationality());
+
+        service.save(author);
+
+        return ResponseEntity.noContent().build();
     }
 }

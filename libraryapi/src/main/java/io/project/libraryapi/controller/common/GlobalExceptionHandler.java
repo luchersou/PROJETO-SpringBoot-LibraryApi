@@ -2,6 +2,8 @@ package io.project.libraryapi.controller.common;
 
 import io.project.libraryapi.controller.dto.FieldError;
 import io.project.libraryapi.controller.dto.ResponseError;
+import io.project.libraryapi.exceptions.DuplicateRecordException;
+import io.project.libraryapi.exceptions.NotAllowedOperationException;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -34,5 +36,28 @@ public class GlobalExceptionHandler {
                 "Validation error",
                 errorList
         );
+    }
+
+    @ExceptionHandler(DuplicateRecordException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseError handleDuplicateRecordException(DuplicateRecordException e){
+        return ResponseError.conflict(e.getMessage());
+    }
+
+    @ExceptionHandler(NotAllowedOperationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseError handleNotAllowedOperationException(
+            NotAllowedOperationException e){
+        return ResponseError.defaultResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseError handleUntreatedErrors(RuntimeException e){
+        System.out.println(e.getMessage());
+        return new ResponseError(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "An unexpected error has occurred. Please contact management."
+                , List.of());
     }
 }
