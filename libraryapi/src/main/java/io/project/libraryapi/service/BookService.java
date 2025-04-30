@@ -1,14 +1,16 @@
 package io.project.libraryapi.service;
 
+import io.project.libraryapi.controller.validator.BookValidator;
 import io.project.libraryapi.model.Book;
 import io.project.libraryapi.model.BookGenre;
 import io.project.libraryapi.repository.BookRepository;
-import io.project.libraryapi.repository.Specs.BookSpecs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,8 +22,10 @@ import static io.project.libraryapi.repository.Specs.BookSpecs.*;
 public class BookService {
 
     private final BookRepository repository;
+    private final BookValidator validator;
 
     public Book save(Book book) {
+        validator.validate(book);
         return repository.save(book);
     }
 
@@ -33,7 +37,13 @@ public class BookService {
         repository.delete(book);
     }
 
-    public List<Book> search(String isbn, String title, String authorName, BookGenre genre, Integer yearRelease) {
+    public Page<Book> search(String isbn,
+                             String title,
+                             String authorName,
+                             BookGenre genre,
+                             Integer yearRelease,
+                             Integer page,
+                             Integer pageLength) {
 
 
         // It's basically an 'always true,' a starting point to keep adding filters.
@@ -63,13 +73,16 @@ public class BookService {
             specs = specs.and(nameAuthorLike(authorName));
         }
 
-        return repository.findAll(specs);
+        Pageable pageRequest = PageRequest.of(page, pageLength);
+
+        return repository.findAll(specs, pageRequest);
     }
 
     public void update(Book book) {
         if(book.getId() == null){
             throw new IllegalArgumentException("It's necessary that the book already be saved in the database");
         }
+        validator.validate(book);
         repository.save(book);
     }
 }
