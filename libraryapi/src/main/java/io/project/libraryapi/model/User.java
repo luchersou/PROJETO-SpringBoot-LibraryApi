@@ -1,11 +1,8 @@
 package io.project.libraryapi.model;
 
-import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.Type;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -21,5 +18,7 @@ public class User {
 
     private String password;
 
-    private List<String> roles;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30, nullable = false)
+    private UserRole userRole;
 }
