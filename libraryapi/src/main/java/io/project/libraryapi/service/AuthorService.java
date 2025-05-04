@@ -3,9 +3,12 @@ package io.project.libraryapi.service;
 import io.project.libraryapi.controller.validator.AuthorValidator;
 import io.project.libraryapi.exceptions.NotAllowedOperationException;
 import io.project.libraryapi.model.Author;
+import io.project.libraryapi.model.User;
 import io.project.libraryapi.repository.AuthorRepository;
 import io.project.libraryapi.repository.BookRepository;
+import io.project.libraryapi.security.SecurityService;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +21,13 @@ public class AuthorService {
 
     private final AuthorRepository repository;
     private final AuthorValidator validator;
+    private final SecurityService securityService;
     private final BookRepository bookRepository;
 
     public Author save(Author author){
         validator.validate(author);
+        User user = securityService.findLoggedUser();
+        author.setUserId(user.getId());
         return repository.save(author);
     }
 

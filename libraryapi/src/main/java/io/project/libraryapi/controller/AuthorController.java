@@ -6,10 +6,16 @@ import io.project.libraryapi.controller.mappers.AuthorMapper;
 import io.project.libraryapi.exceptions.DuplicateRecordException;
 import io.project.libraryapi.exceptions.NotAllowedOperationException;
 import io.project.libraryapi.model.Author;
+import io.project.libraryapi.model.User;
+import io.project.libraryapi.security.SecurityService;
 import io.project.libraryapi.service.AuthorService;
+import io.project.libraryapi.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,6 +34,7 @@ public class AuthorController implements GenericController{
     private final AuthorMapper mapper;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('MANAGER')")
     public ResponseEntity<Void> save(@RequestBody @Valid AuthorDTO dto) {
 
         Author author = mapper.toEntity(dto);
@@ -38,6 +45,7 @@ public class AuthorController implements GenericController{
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER', 'USER')")
     public ResponseEntity<AuthorDTO> findDetails(@PathVariable String id) { // Do not need to put "@PathVariable("id")" because the string and the GetMepping have the same name
         var idAuthor = UUID.fromString(id);
 
@@ -50,6 +58,7 @@ public class AuthorController implements GenericController{
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     public ResponseEntity<Void> delete(@PathVariable String id) {
 
         var idAuthor = UUID.fromString(id);
@@ -65,6 +74,7 @@ public class AuthorController implements GenericController{
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER', 'USER')")
     public ResponseEntity<List<AuthorDTO>> search(@RequestParam(value = "name", required = false) String name,
                                                   @RequestParam(value = "nationality", required = false) String nationality) {
         List<Author> result = service.search(name, nationality);
@@ -76,6 +86,7 @@ public class AuthorController implements GenericController{
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasAnyRole('MANAGER')")
     public ResponseEntity<Void> Update(@PathVariable String id,
                                          @RequestBody @Valid AuthorDTO dto) {
 

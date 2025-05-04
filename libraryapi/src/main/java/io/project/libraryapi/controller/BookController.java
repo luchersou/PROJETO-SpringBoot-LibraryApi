@@ -10,12 +10,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping("books")
+// @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER')") You can put this annotation if the authorization is given to all endpoints.
 @RequiredArgsConstructor
 public class BookController implements GenericController{
 
@@ -23,6 +25,7 @@ public class BookController implements GenericController{
     private final BookMapper mapper;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER')")
     public ResponseEntity<Void> save(@RequestBody @Valid BookRegistrationDTO dto) {
 
         Book book = mapper.toEntity(dto);
@@ -32,6 +35,7 @@ public class BookController implements GenericController{
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER')")
     public ResponseEntity<BookSearchResultDTO> findDetails(@PathVariable String id){
         return service.findById(UUID.fromString(id))
                 .map(book -> {
@@ -42,6 +46,7 @@ public class BookController implements GenericController{
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER')")
     public ResponseEntity<Object> delete(@PathVariable String id){
         return service.findById(UUID.fromString(id))
                 .map(book -> {
@@ -51,6 +56,7 @@ public class BookController implements GenericController{
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER')")
     public ResponseEntity<Page<BookSearchResultDTO>> search(
             @RequestParam(value = "isbn", required = false)
             String isbn,
@@ -75,6 +81,7 @@ public class BookController implements GenericController{
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER')")
     public ResponseEntity<Object> update(@PathVariable String id,
                                        @RequestBody @Valid BookRegistrationDTO dto){
         return service.findById(UUID.fromString(id))
