@@ -24,13 +24,14 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                // .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults())
                 .authorizeHttpRequests(http -> {
                     http.requestMatchers("/login/**").permitAll();
                     http.requestMatchers(HttpMethod.POST, "/users/**").permitAll();
                     http.anyRequest().authenticated();
                 })
+                .oauth2Login(Customizer.withDefaults())
                 .build();
     }
 

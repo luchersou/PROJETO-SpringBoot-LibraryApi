@@ -3,7 +3,9 @@ package io.project.libraryapi.service;
 import io.project.libraryapi.controller.validator.BookValidator;
 import io.project.libraryapi.model.Book;
 import io.project.libraryapi.model.BookGenre;
+import io.project.libraryapi.model.User;
 import io.project.libraryapi.repository.BookRepository;
+import io.project.libraryapi.security.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,9 +25,12 @@ public class BookService {
 
     private final BookRepository repository;
     private final BookValidator validator;
+    private final SecurityService securityService;
 
     public Book save(Book book) {
         validator.validate(book);
+        User user = securityService.findLoggedUser();
+        book.setUser(user);
         return repository.save(book);
     }
 
