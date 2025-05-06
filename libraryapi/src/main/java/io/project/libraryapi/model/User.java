@@ -3,8 +3,6 @@ package io.project.libraryapi.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -19,6 +17,8 @@ public class User {
     private String login;
 
     private String password;
+
+    private String email;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 30, nullable = false)

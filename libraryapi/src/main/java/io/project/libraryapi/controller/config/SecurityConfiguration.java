@@ -1,6 +1,7 @@
 package io.project.libraryapi.controller.config;
 
 import io.project.libraryapi.security.CustomUserDetailsService;
+import io.project.libraryapi.security.OAuth2LoginSuccessHandler;
 import io.project.libraryapi.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
+                                                   OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) throws Exception{
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
@@ -31,7 +33,8 @@ public class SecurityConfiguration {
                     http.requestMatchers(HttpMethod.POST, "/users/**").permitAll();
                     http.anyRequest().authenticated();
                 })
-                .oauth2Login(Customizer.withDefaults())
+                .oauth2Login(httpSecurityOAuth2LoginConfigurer ->
+                        httpSecurityOAuth2LoginConfigurer.successHandler(oAuth2LoginSuccessHandler))
                 .build();
     }
 
@@ -40,7 +43,7 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder(10);
     }
 
-    @Bean
+//  @Bean
     public UserDetailsService userDetailsService(UserService userservice){
 
 //        UserDetails user1 = User.builder()
@@ -57,4 +60,11 @@ public class SecurityConfiguration {
 
         return new CustomUserDetailsService(userservice);
     }
+
+/* This is necessary if you choose not to put "ROLE_" in CustomAuthentication class. Both do the same thing
+    @Bean
+    public GrantedAuthorityDefaults grantedAuthorityDefaults(){
+        return new GrantedAuthorityDefaults("");
+    }
+ */
 }

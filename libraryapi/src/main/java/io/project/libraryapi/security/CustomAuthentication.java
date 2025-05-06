@@ -9,7 +9,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Getter
@@ -19,7 +18,7 @@ public class CustomAuthentication implements Authentication {
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(user.getUserRole().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name()));
     }
 
     @Override
@@ -29,17 +28,17 @@ public class CustomAuthentication implements Authentication {
 
     @Override
     public Object getDetails() {
-        return null;
+        return user;
     }
 
     @Override
     public Object getPrincipal() {
-        return null;
+        return user;
     }
 
     @Override
     public boolean isAuthenticated() {
-        return false;
+        return true;
     }
 
     @Override
@@ -49,6 +48,6 @@ public class CustomAuthentication implements Authentication {
 
     @Override
     public String getName() {
-        return "";
+        return user.getLogin();
     }
 }

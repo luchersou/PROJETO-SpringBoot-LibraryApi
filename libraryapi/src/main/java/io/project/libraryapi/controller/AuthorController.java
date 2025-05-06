@@ -9,15 +9,11 @@ import io.project.libraryapi.model.Author;
 import io.project.libraryapi.model.User;
 import io.project.libraryapi.security.SecurityService;
 import io.project.libraryapi.service.AuthorService;
-import io.project.libraryapi.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
