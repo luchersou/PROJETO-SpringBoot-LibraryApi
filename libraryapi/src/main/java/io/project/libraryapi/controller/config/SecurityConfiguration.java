@@ -43,7 +43,7 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder(10);
     }
 
-//  @Bean
+    @Bean
     public UserDetailsService userDetailsService(UserService userservice){
 
 //        UserDetails user1 = User.builder()

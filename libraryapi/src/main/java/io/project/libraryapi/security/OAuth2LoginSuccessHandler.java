@@ -1,8 +1,8 @@
 package io.project.libraryapi.security;
 
 import io.project.libraryapi.model.User;
+import io.project.libraryapi.model.UserRole;
 import io.project.libraryapi.service.UserService;
-import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -20,6 +20,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
+    private static final String STANDARD_PASSWORD = "123";
+
     private final UserService service;
 
     @Override
@@ -34,7 +36,11 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         String email = oAuth2User.getAttribute("email");
 
         // Sets a custom authenticated user in the SecurityContext after finding them by email.
-        User user = service.findByemail(email);
+        User user = service.findByEmail(email);
+
+        if(user == null){
+            user = userRegistrationDataBase(email);
+        }
 
         authentication = new CustomAuthentication(user);
 
@@ -43,4 +49,15 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         super.onAuthenticationSuccess(request, response, authentication);
     }
 
+    // Method to register the user who logged in
+    private User userRegistrationDataBase(String email) {
+        User user;
+        user = new User();
+        user.setLogin(email);
+        user.setEmail(email);
+        user.setPassword(STANDARD_PASSWORD);
+        user.setUserRole(UserRole.USER);
+        service.save(user);
+        return user;
+    }
 }
