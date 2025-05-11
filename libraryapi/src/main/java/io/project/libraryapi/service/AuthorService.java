@@ -51,19 +51,22 @@ public class AuthorService {
     }
 
     public List<Author> search(String name, String nationality){
-        if(name != null && nationality != null ){
+        boolean isNameValid = name != null && !name.trim().isEmpty();
+        boolean isNationalityValid = nationality != null && !nationality.trim().isEmpty();
+
+        if (!isNameValid && !isNationalityValid) {
+            return List.of();
+        }
+
+        if (isNameValid && isNationalityValid){
             return repository.findBynameAndNationality(name, nationality);
         }
 
-        if(name != null){
+        if (isNameValid){
             return repository.findByName(name);
         }
 
-        if(nationality != null){
-            return repository.findByNationality(nationality);
-        }
-
-        return repository.findAll();
+        return repository.findByNationality(nationality);
     }
 
     public boolean hasBook(Author author){

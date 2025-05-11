@@ -1,13 +1,8 @@
 package io.project.libraryapi.controller;
 
 import io.project.libraryapi.controller.dto.AuthorDTO;
-import io.project.libraryapi.controller.dto.ResponseError;
 import io.project.libraryapi.controller.mappers.AuthorMapper;
-import io.project.libraryapi.exceptions.DuplicateRecordException;
-import io.project.libraryapi.exceptions.NotAllowedOperationException;
 import io.project.libraryapi.model.Author;
-import io.project.libraryapi.model.User;
-import io.project.libraryapi.security.SecurityService;
 import io.project.libraryapi.service.AuthorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +36,7 @@ public class AuthorController implements GenericController{
     }
 
     @GetMapping("{id}")
-    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER', 'USER')")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER', 'USER', 'ADMIN')")
     public ResponseEntity<AuthorDTO> findDetails(@PathVariable String id) { // Do not need to put "@PathVariable("id")" because the string and the GetMepping have the same name
         var idAuthor = UUID.fromString(id);
 
@@ -54,7 +49,7 @@ public class AuthorController implements GenericController{
     }
 
     @DeleteMapping("{id}")
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable String id) {
 
         var idAuthor = UUID.fromString(id);
@@ -70,7 +65,7 @@ public class AuthorController implements GenericController{
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER', 'USER')")
+    @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER', 'USER', 'ADMIN')")
     public ResponseEntity<List<AuthorDTO>> search(@RequestParam(value = "name", required = false) String name,
                                                   @RequestParam(value = "nationality", required = false) String nationality) {
         List<Author> result = service.search(name, nationality);
@@ -82,7 +77,7 @@ public class AuthorController implements GenericController{
     }
 
     @PutMapping("{id}")
-    @PreAuthorize("hasAnyRole('MANAGER')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Void> Update(@PathVariable String id,
                                          @RequestBody @Valid AuthorDTO dto) {
 

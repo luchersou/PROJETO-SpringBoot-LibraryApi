@@ -18,8 +18,6 @@ public class User {
 
     private String password;
 
-    private String email;
-
     @Enumerated(EnumType.STRING)
     @Column(length = 30, nullable = false)
     private UserRole userRole;
