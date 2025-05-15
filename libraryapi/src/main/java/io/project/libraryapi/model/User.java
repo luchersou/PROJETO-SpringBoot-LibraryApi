@@ -1,6 +1,7 @@
 package io.project.libraryapi.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
 
 import java.util.UUID;
@@ -17,6 +18,9 @@ public class User {
     private String login;
 
     private String password;
+
+    @Email
+    private String email;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 30, nullable = false)
