@@ -30,7 +30,6 @@ public class SecurityConfiguration {
                 .formLogin(Customizer.withDefaults())
                 .authorizeHttpRequests(http -> {
                     http.requestMatchers("/login/**").permitAll();
-                    http.requestMatchers(HttpMethod.POST, "/users/**").permitAll();
                     http.anyRequest().authenticated();
                 })
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer ->
