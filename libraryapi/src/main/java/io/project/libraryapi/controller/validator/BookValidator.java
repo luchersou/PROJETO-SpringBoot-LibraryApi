@@ -13,7 +13,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookValidator {
 
-    private static final int YEAR_OF_MANDATORY_PRICE = 2005;
+    private static final int YEAR_OF_MANDATORY_PRICE = 2015;
 
     private final BookRepository repository;
 
@@ -23,7 +23,7 @@ public class BookValidator {
         }
 
         if(isPriceRequiredNull(book)){
-            throw new InvalidFieldException("price", "The price field is required for books published from 2020 onward.");
+            throw new InvalidFieldException("price", "The price field is required for books published from 2015 onward.");
         }
     }
 
