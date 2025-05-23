@@ -10,7 +10,8 @@ public class BookSpecs {
 
     // criteriaBuilder.equal(root.get("isbn"), isbn) = "where isbn = :isbn"
     public static Specification<Book> isbnEqual(String isbn) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("isbn"), isbn);
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("isbn"), isbn);
     }
 
     public static Specification<Book> titleLike(String title) {
@@ -19,7 +20,8 @@ public class BookSpecs {
     }
 
     public static Specification<Book> genreEqual(BookGenre genre) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("genre"), genre);
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("genre"), genre);
     }
 
     public static Specification<Book> yearReleaseEqual(Integer yearRelease) {

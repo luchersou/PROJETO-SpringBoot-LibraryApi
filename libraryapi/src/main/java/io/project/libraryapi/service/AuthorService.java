@@ -8,7 +8,6 @@ import io.project.libraryapi.repository.AuthorRepository;
 import io.project.libraryapi.repository.BookRepository;
 import io.project.libraryapi.security.SecurityService;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,7 +58,7 @@ public class AuthorService {
         }
 
         if (isNameValid && isNationalityValid){
-            return repository.findBynameAndNationality(name, nationality);
+            return repository.findByNameAndNationality(name, nationality);
         }
 
         if (isNameValid){

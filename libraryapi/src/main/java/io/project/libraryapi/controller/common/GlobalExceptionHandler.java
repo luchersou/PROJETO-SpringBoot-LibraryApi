@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Spring automatically validates DTO fields annotated with @Valid using Hibernate Validator and throws MethodArgumentNotValidException if constraints are violated.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseError handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {

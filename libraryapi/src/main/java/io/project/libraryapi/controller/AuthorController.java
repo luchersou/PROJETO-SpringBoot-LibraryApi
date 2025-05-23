@@ -32,7 +32,6 @@ public class AuthorController implements GenericController{
         service.save(author);
         URI location = generateHeaderLocation(author.getId());
         return ResponseEntity.created(location).build();
-
     }
 
     @GetMapping("{id}")
@@ -45,7 +44,6 @@ public class AuthorController implements GenericController{
                     AuthorDTO dto = mapper.toDTO(author);
                     return ResponseEntity.ok(dto);
                 }).orElseGet(() -> ResponseEntity.notFound().build());
-
     }
 
     @DeleteMapping("{id}")
@@ -61,7 +59,6 @@ public class AuthorController implements GenericController{
 
         service.delete(authorOptional.get());
         return ResponseEntity.noContent().build();
-
     }
 
     @GetMapping
@@ -71,7 +68,7 @@ public class AuthorController implements GenericController{
         List<Author> result = service.search(name, nationality);
         List<AuthorDTO> list = result
                 .stream()
-                .map(mapper::toDTO) // It's the same as "author -> mapper.toDTO(author)"
+                .map(mapper::toDTO) // It's the same as ".map(author -> mapper.toDTO(author))"
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
@@ -80,7 +77,6 @@ public class AuthorController implements GenericController{
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Void> Update(@PathVariable String id,
                                          @RequestBody @Valid AuthorDTO dto) {
-
 
         var idAuthor = UUID.fromString(id);
         Optional<Author> authorOptional = service.findById(idAuthor);

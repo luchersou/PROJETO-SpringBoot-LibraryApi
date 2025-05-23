@@ -42,7 +42,6 @@ public class BookController implements GenericController{
                     var dto = mapper.toDTO(book);
                     return ResponseEntity.ok(dto);
                 }).orElseGet(() -> ResponseEntity.notFound().build());
-
     }
 
     @DeleteMapping("{id}")
