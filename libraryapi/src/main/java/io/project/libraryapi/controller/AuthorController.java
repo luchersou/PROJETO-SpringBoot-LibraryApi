@@ -34,7 +34,7 @@ public class AuthorController implements GenericController{
         return ResponseEntity.created(location).build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER', 'USER', 'ADMIN')")
     public ResponseEntity<AuthorDTO> findDetails(@PathVariable String id) { // Do not need to put "@PathVariable("id")" because the string and the GetMepping have the same name
         var idAuthor = UUID.fromString(id);
@@ -46,7 +46,7 @@ public class AuthorController implements GenericController{
                 }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable String id) {
 
@@ -73,7 +73,7 @@ public class AuthorController implements GenericController{
         return ResponseEntity.ok(list);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ResponseEntity<Void> Update(@PathVariable String id,
                                          @RequestBody @Valid AuthorDTO dto) {
