@@ -34,7 +34,7 @@ public class BookController implements GenericController{
         return ResponseEntity.created(url).build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('SUPPORT', 'MANAGER', 'USER', 'ADMIN')")
     public ResponseEntity<BookSearchResultDTO> findDetails(@PathVariable String id){
         return service.findById(UUID.fromString(id))
@@ -44,7 +44,7 @@ public class BookController implements GenericController{
                 }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Object> delete(@PathVariable String id){
         return service.findById(UUID.fromString(id))
@@ -79,7 +79,7 @@ public class BookController implements GenericController{
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     public ResponseEntity<Object> update(@PathVariable String id,
                                        @RequestBody @Valid BookRegistrationDTO dto){
